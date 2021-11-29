@@ -3,4 +3,8 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="tab_item_homepage">首页</string>
+    <string name="tab_item_records">记录</string>
+    <string name="tab_item_accounts">账户管理</string>
+    <string name="notification_login_first">请先登录…</string>
 </resources>

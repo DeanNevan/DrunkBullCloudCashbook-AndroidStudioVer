@@ -1,0 +1,221 @@
+syntax ="proto3";
+
+enum Type{
+    UNKNOWN = 0;
+    CONNECT = 1;
+    HEARTBEAT = 2;
+    CREATE_GROUP = 3;
+    ENTER_GROUP = 4;
+    ADD_RECORD = 5;
+    REMOVE_RECORD = 6;
+    ADD_ACCOUNT = 7;
+    REMOVE_ACCOUNT = 8;
+    GET_ACCOUNTS = 9;
+    EDIT_NICKNAME = 10;
+    GET_RECORDS = 11;
+}
+
+message User{
+    string groupname = 1;
+    string username = 2;
+    string nickname = 3;
+    string password = 4;
+    bool admin = 5;
+    bool read = 6;
+    bool write = 7;
+}
+
+message Record{
+    int32 id = 1;
+    string groupname = 2;
+    string username = 3;
+    string title = 4;
+    string comment = 5;
+    double money = 6;
+    int64 date = 7;
+    repeated string images_data = 8;
+}
+
+enum SortType{
+    SORT_ID = 0;
+    SORT_TITLE = 1;
+    SORT_MONEY = 2;
+    SORT_USERNAME = 3;
+    SORT_DATE = 4;
+}
+
+enum SearchType{
+    SEARCH_ID = 0;
+    SEARCH_TITLE = 1;
+    SEARCH_MONEY = 2;
+    SEARCH_USERNAME = 3;
+    SEARCH_DATE = 4;
+}
+
+message Request {
+    oneof data_body{
+        RequestConnect requestConnect = 1;
+        RequestHeartbeat requestHeartbeat = 2;
+        RequestCreateGroup requestCreateGroup = 3;
+        RequestEnterGroup requestEnterGroup = 4;
+        RequestAddRecord requestAddRecord = 5;
+        RequestRemoveRecord requestRemoveRecord = 6;
+        RequestAddAccount requestAddAccount = 7;
+        RequestRemoveAccount requestRemoveAccount = 8;
+        RequestGetAccounts requestGetAccounts = 9;
+        RequestEditNickname requestEditNickname = 10;
+        RequestGetRecords requestGetRecords = 11;
+    }
+    Type type = 12;
+    string client_id = 13;
+    string tip = 14;
+    int64 timestamp = 15;
+    int32 request_id = 16;
+}
+
+message Response {
+    oneof data_body{
+        ResponseConnect responseConnect = 1;
+        ResponseHeartbeat responseHeartbeat = 2;
+        ResponseCreateGroup responseCreateGroup = 3;
+        ResponseEnterGroup responseEnterGroup = 4;
+        ResponseAddRecord responseAddRecord = 5;
+        ResponseRemoveRecord responseRemoveRecord = 6;
+        ResponseAddAccount responseAddAccount = 7;
+        ResponseRemoveAccount responseRemoveAccount = 8;
+        ResponseGetAccounts responseGetAccounts = 9;
+        ResponseEditNickname responseEditNickname = 10;
+        ResponseGetRecords responseGetRecords = 11;
+    }
+    Type type = 12;
+    string client_id = 13;
+    string tip = 14;
+    int64 timestamp = 15;
+    int32 request_id = 16;
+}
+
+
+message RequestConnect{
+
+}
+message ResponseConnect{
+    bool result = 1;
+    string words = 2;
+}
+
+message RequestHeartbeat{
+
+}
+message ResponseHeartbeat{
+    bool result = 1;
+    string words = 2;
+}
+
+message RequestCreateGroup{
+    string groupname = 1;
+    string admin_username = 2;
+    string admin_password = 3;
+    string admin_nickname = 4;
+}
+message ResponseCreateGroup{
+    bool result = 1;
+    string words = 2;
+}
+
+message RequestEnterGroup{
+    string groupname = 1;
+    string username = 2;
+    string password = 3;
+}
+message ResponseEnterGroup{
+    bool result = 1;
+    string words = 2;
+
+    User user = 3;
+}
+
+message RequestAddRecord{
+    string groupname = 1;
+
+    Record record = 2;
+}
+message ResponseAddRecord{
+    bool result = 1;
+    string words = 2;
+}
+
+message RequestRemoveRecord{
+    string groupname = 1;
+
+    int32 record_id = 2;
+}
+message ResponseRemoveRecord{
+    bool result = 1;
+    string words = 2;
+}
+
+message RequestAddAccount{
+    string groupname = 1;
+    User user = 2;
+}
+message ResponseAddAccount{
+    bool result = 1;
+    string words = 2;
+}
+
+message RequestRemoveAccount{
+    string groupname = 1;
+    string username = 2;
+}
+message ResponseRemoveAccount{
+    bool result = 1;
+    string words = 2;
+}
+
+message RequestGetAccounts{
+    string groupname = 1;
+}
+message ResponseGetAccounts{
+    bool result = 1;
+    string words = 2;
+
+    repeated User accounts = 3;
+}
+
+message RequestEditNickname{
+    string groupname = 1;
+    string username = 2;
+    string nickname = 3;
+}
+message ResponseEditNickname{
+    bool result = 1;
+    string words = 2;
+    string nickname = 3;
+}
+
+message RequestGetRecords{
+    string groupname = 1;
+    string username = 2;
+    SortType sort_type = 3;
+    bool ascending = 4;
+    repeated SearchType search_types = 5;
+    repeated string search_values = 6;
+    int32 page_size = 7;
+    int32 page_idx = 8;
+    bool only_count = 9;
+}
+message ResponseGetRecords{
+    bool result = 1;
+    string words = 2;
+    string groupname = 3;
+    string username = 4;
+    repeated Record records = 5;
+    SortType sort_type = 6;
+    bool ascending = 7;
+    repeated SearchType search_types = 8;
+    repeated string search_values = 9;
+    int32 page_size = 10;
+    int32 page_idx = 11;
+    bool only_count = 12;
+    int32 count = 13;
+}
