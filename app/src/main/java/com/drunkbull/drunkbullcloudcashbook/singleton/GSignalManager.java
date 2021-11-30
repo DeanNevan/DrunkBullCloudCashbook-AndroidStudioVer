@@ -57,6 +57,15 @@ public class GSignalManager {
         gSignal.addHandlerFunction(handler, function);
     }
 
+    public void connect(Object target, String gSignalName, Object handler, String function, Class[] paraTypes) throws NoSuchGSignalException, NoSuchMethodException {
+        if (!isGSignalExist(target, gSignalName)){
+            throw new NoSuchGSignalException("GSignalManager:bad connect");
+        }
+        GSignalGroup gSignalGroup = gSignalGroups.get(target);
+        GSignal gSignal = gSignalGroup.getGSignal(gSignalName);
+        gSignal.addHandlerFunction(handler, function, paraTypes);
+    }
+
     public void disconnect(Object target, String gSignalName, Object handler, String function) throws NoSuchGSignalException {
         if (!isGSignalExist(target, gSignalName)){
             throw new NoSuchGSignalException("GSignalManager:bad disconnect");
@@ -68,7 +77,7 @@ public class GSignalManager {
 
     public void emitGSignal(Object obj, String gSignalName, Class[] paraTypes, Object[] paraValues) throws NoSuchGSignalException {
         if (!isGSignalExist(obj, gSignalName)){
-            throw new NoSuchGSignalException("GSignalManager:bad disconnect");
+            throw new NoSuchGSignalException("GSignalManager:bad emitGSignal");
         }
         GSignalGroup gSignalGroup = gSignalGroups.get(obj);
         GSignal gSignal = gSignalGroup.getGSignal(gSignalName);
@@ -77,7 +86,7 @@ public class GSignalManager {
 
     public void emitGSignal(Object obj, String gSignalName, Class paraType, Object paraValue) throws NoSuchGSignalException {
         if (!isGSignalExist(obj, gSignalName)){
-            throw new NoSuchGSignalException("GSignalManager:bad disconnect");
+            throw new NoSuchGSignalException("GSignalManager:bad emitGSignal");
         }
         GSignalGroup gSignalGroup = gSignalGroups.get(obj);
         GSignal gSignal = gSignalGroup.getGSignal(gSignalName);
@@ -86,7 +95,7 @@ public class GSignalManager {
 
     public void emitGSignal(Object obj, String gSignalName) throws NoSuchGSignalException {
         if (!isGSignalExist(obj, gSignalName)){
-            throw new NoSuchGSignalException("GSignalManager:bad disconnect");
+            throw new NoSuchGSignalException("GSignalManager:bad emitGSignal");
         }
         GSignalGroup gSignalGroup = gSignalGroups.get(obj);
         GSignal gSignal = gSignalGroup.getGSignal(gSignalName);
@@ -138,11 +147,19 @@ class GSignal{
         if (!Reflex.hasFunction(handler.getClass(), function)){
             throw new NoSuchMethodException("GSignal:bad addHandlerFunction");
         }
-
         if (!handlers.containsKey(handler)){
             handlers.put(handler, new GSignalHandler(handler));
         }
+        handlers.get(handler).addFunction(function);
+    }
 
+    public void addHandlerFunction(Object handler, String function, Class[] pareTypes) throws NoSuchMethodException {
+        if (!Reflex.hasFunction(handler.getClass(), function, pareTypes)){
+            throw new NoSuchMethodException("GSignal:bad addHandlerFunction");
+        }
+        if (!handlers.containsKey(handler)){
+            handlers.put(handler, new GSignalHandler(handler));
+        }
         handlers.get(handler).addFunction(function);
     }
 

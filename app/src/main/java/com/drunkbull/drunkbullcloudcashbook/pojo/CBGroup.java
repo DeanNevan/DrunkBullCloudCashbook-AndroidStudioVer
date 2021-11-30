@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CBGroup {
-    public class CBGroupMember{
+    public static class CBGroupMember{
         public boolean admin = false;
         public boolean read = false;
         public boolean write = false;

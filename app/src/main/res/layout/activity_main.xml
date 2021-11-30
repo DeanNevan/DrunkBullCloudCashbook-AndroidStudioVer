@@ -11,17 +11,46 @@
         android:layout_height="729dp"
         android:orientation="vertical">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/primary_color_dark_dark"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/text_view_headline"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text=" TextView"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/activity_headline_font_size" />
+
+            <TextView
+                android:id="@+id/text_view_status"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="right|center_vertical"
+                android:text=" TextView"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/activity_headline2_font_size" />
+
+        </LinearLayout>
+
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_gravity="start">
 
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/tab_item_homepage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:icon="@drawable/home"
-                android:text="@string/tab_item_homepage"
+                android:text="@string/title_homepage"
                 tools:ignore="ImageContrastCheck" />
 
             <com.google.android.material.tabs.TabItem
@@ -29,14 +58,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:icon="@drawable/menu_list"
-                android:text="@string/tab_item_records" />
+                android:text="@string/title_records" />
 
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/tab_item_accounts"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:icon="@drawable/massive_multiplayer"
-                android:text="@string/tab_item_accounts" />
+                android:text="@string/title_accounts" />
         </com.google.android.material.tabs.TabLayout>
 
         <androidx.viewpager2.widget.ViewPager2
@@ -45,4 +74,5 @@
             android:layout_height="match_parent" />
 
     </LinearLayout>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

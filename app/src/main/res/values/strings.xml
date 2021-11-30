@@ -1,10 +1,18 @@
 <resources>
     <string name="app_name">DrunkBullCloudCashbook</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
-    <string name="tab_item_homepage">首页</string>
-    <string name="tab_item_records">记录</string>
-    <string name="tab_item_accounts">账户管理</string>
+    <string name="title_homepage">首页</string>
+    <string name="title_records">记录</string>
+    <string name="title_accounts">账户管理</string>
     <string name="notification_login_first">请先登录…</string>
+    <string name="text_status">你好，%s(%s)</string>
+    <string name="text_create_group">创建组织</string>
+    <string name="text_login_group">登入组织</string>
+    <string name="text_group_dashboard">组织Dashboard</string>
+    <string name="text_group_name">组织名称：</string>
+    <string name="text_admin_name">管理员账号：</string>
+    <string name="text_admin_password">管理员密码：</string>
+    <string name="text_admin_confirm_password">二次确认密码：</string>
+    <string name="text_admin_nickname">管理员昵称：</string>
+    <string name="text_confirm">确认</string>
+    <string name="text_cancel">取消</string>
 </resources>

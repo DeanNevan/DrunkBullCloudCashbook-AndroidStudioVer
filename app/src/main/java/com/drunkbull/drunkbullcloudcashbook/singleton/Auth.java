@@ -1,5 +1,9 @@
 package com.drunkbull.drunkbullcloudcashbook.singleton;
 
+import com.drunkbull.drunkbullcloudcashbook.network.ServerConnection;
+import com.drunkbull.drunkbullcloudcashbook.pojo.CBGroup;
+import com.drunkbull.drunkbullcloudcashbook.protobuf.CBMessage;
+
 public class Auth {
 
     private volatile static Auth singleton;
@@ -16,7 +20,15 @@ public class Auth {
 
     private Auth(){
 
-        GSignalManager.getSingleton().addGSignal(this, "已验证");
+        GSignalManager.getSingleton().addGSignal(this, "authenticated");
+
+        try {
+            GSignalManager.getSingleton().connect(ServerConnection.getSingleton(), "responsed", this, "onResponsed", new Class[]{CBMessage.Response.class});
+        } catch (NoSuchGSignalException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -24,7 +36,15 @@ public class Auth {
 
     public boolean authenticated = false;
 
+    public CBGroup cbGroup = new CBGroup();
 
+    public CBGroup.CBGroupMember cbGroupMember = new CBGroup.CBGroupMember();
+
+    private void onResponsed(CBMessage.Response response){
+        if (response.getType() == CBMessage.Type.CONNECT){
+            clientID = response.getClientId();
+        }
+    }
 
 
 }

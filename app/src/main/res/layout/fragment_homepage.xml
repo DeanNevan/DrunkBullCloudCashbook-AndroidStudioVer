@@ -6,8 +6,40 @@
     android:layout_height="match_parent"
     tools:context=".ui.dashboard.DashboardFragment">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/button_create_group"
+            android:layout_width="@dimen/big_button_size_width"
+            android:layout_height="@dimen/big_button_size_height"
+            android:gravity="center"
+            android:text="@string/text_create_group"
+            app:icon="@android:drawable/ic_menu_myplaces" />
+
+        <Button
+            android:id="@+id/button_login_group"
+            android:layout_width="@dimen/big_button_size_width"
+            android:layout_height="@dimen/big_button_size_height"
+            android:gravity="center"
+            android:text="@string/text_login_group"
+            app:icon="@android:drawable/ic_menu_send" />
+
+        <Button
+            android:id="@+id/button_group_dashboard"
+            android:layout_width="@dimen/big_button_size_width"
+            android:layout_height="@dimen/big_button_size_height"
+            android:gravity="center"
+            android:text="@string/text_group_dashboard"
+            app:icon="@android:drawable/ic_menu_preferences" />
+
+    </LinearLayout>
+
     <TextView
-        android:id="@+id/text_homepage"
+        android:id="@+id/text_view_blank_homepage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
