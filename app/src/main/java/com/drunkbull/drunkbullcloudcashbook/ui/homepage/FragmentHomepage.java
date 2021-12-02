@@ -27,6 +27,7 @@ import com.drunkbull.drunkbullcloudcashbook.activities.CreateGroupActivity;
 import com.drunkbull.drunkbullcloudcashbook.network.RequestWriter;
 import com.drunkbull.drunkbullcloudcashbook.network.ServerConnection;
 import com.drunkbull.drunkbullcloudcashbook.protobuf.CBMessage;
+import com.drunkbull.drunkbullcloudcashbook.singleton.Auth;
 import com.drunkbull.drunkbullcloudcashbook.singleton.GSignalManager;
 import com.drunkbull.drunkbullcloudcashbook.singleton.NoSuchGSignalException;
 import com.drunkbull.drunkbullcloudcashbook.utils.data.DateUtil;
@@ -38,9 +39,12 @@ public class FragmentHomepage extends Fragment {
     Button buttonLoginGroup;
     Button buttonGroupDashboard;
 
+    public int pageIDX = -1;
+
     public FragmentHomepage(){
         GSignalManager.getSingleton().addGSignal(this, "switch_to_create_group");
         GSignalManager.getSingleton().addGSignal(this, "switch_to_login_group");
+        GSignalManager.getSingleton().addGSignal(this, "notify_login_first");
     }
 
     @Nullable
@@ -51,6 +55,8 @@ public class FragmentHomepage extends Fragment {
 
         try {
             GSignalManager.getSingleton().connect(getActivity(), "create_group", this, "onCreateGroup", new Class[]{Intent.class});
+            GSignalManager.getSingleton().connect(getActivity(), "login_group", this, "onLoginGroup", new Class[]{Intent.class});
+            GSignalManager.getSingleton().connect(ServerConnection.getSingleton(), "responsed", this, "onResponsed", new Class[]{CBMessage.Response.class});
         } catch (NoSuchGSignalException e) {
             e.printStackTrace();
         } catch (NoSuchMethodException e) {
@@ -76,6 +82,11 @@ public class FragmentHomepage extends Fragment {
         buttonLoginGroup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                try {
+                    GSignalManager.getSingleton().emitGSignal(FragmentHomepage.this, "switch_to_login_group");
+                } catch (NoSuchGSignalException e) {
+                    e.printStackTrace();
+                }
                 Toast.makeText(getContext(), "buttonLoginGroup", Toast.LENGTH_SHORT).show();
             }
         });
@@ -90,6 +101,19 @@ public class FragmentHomepage extends Fragment {
 
 
         return view;
+    }
+
+    private void onPageChanged(Integer pos){
+        int position = pos;
+        if (position == pageIDX){
+            if (!Auth.getSingleton().authenticated){
+                try {
+                    GSignalManager.getSingleton().emitGSignal(this, "notify_login_first");
+                } catch (NoSuchGSignalException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     private void requestCreateGroup(
@@ -111,6 +135,23 @@ public class FragmentHomepage extends Fragment {
         ServerConnection.getSingleton().sendRequest(builder);
     }
 
+    private void requestLoginGroup(
+            String groupName,
+            String adminName,
+            String adminPassword
+    ){
+        CBMessage.Request.Builder builder = CBMessage.Request.newBuilder();
+        CBMessage.RequestEnterGroup.Builder requestEnterGroupBuilder = CBMessage.RequestEnterGroup.newBuilder();
+        requestEnterGroupBuilder
+                .setGroupname(groupName)
+                .setUsername(adminName)
+                .setPassword(adminPassword);
+        builder
+                .setType(CBMessage.Type.ENTER_GROUP)
+                .setRequestEnterGroup(requestEnterGroupBuilder.build());
+        ServerConnection.getSingleton().sendRequest(builder);
+    }
+
     private void onCreateGroup(Intent intent){
         String groupName = intent.getStringExtra("group_name");
         String adminName = intent.getStringExtra("admin_name");
@@ -126,6 +167,61 @@ public class FragmentHomepage extends Fragment {
                 adminPassword,
                 adminNickname
         );
+    }
+
+    private void onLoginGroup(Intent intent){
+        String groupName = intent.getStringExtra("group_name");
+        String adminName = intent.getStringExtra("admin_name");
+        String adminPassword = intent.getStringExtra("admin_password");
+
+        requestLoginGroup(
+                groupName,
+                adminName,
+                adminPassword
+        );
+    }
+
+    private void onResponsed(CBMessage.Response response){
+        switch (response.getType()){
+            case CREATE_GROUP:
+                CBMessage.ResponseCreateGroup responseCreateGroup = response.getResponseCreateGroup();
+                if (responseCreateGroup.getResult()){
+                    Toast.makeText(getActivity(), "创建组织成功！您可以尝试登入！", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(getActivity(), String.format("创建组织失败！code:%s", responseCreateGroup.getWords()), Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case ENTER_GROUP:
+                CBMessage.ResponseEnterGroup responseEnterGroup = response.getResponseEnterGroup();
+                if (responseEnterGroup.getResult()){
+
+                    CBMessage.User user = responseEnterGroup.getUser();
+                    Auth.getSingleton().cbGroupMember.groupName = user.getGroupname();
+                    Auth.getSingleton().cbGroupMember.username = user.getUsername();
+                    Auth.getSingleton().cbGroupMember.nickname = user.getNickname();
+                    Auth.getSingleton().cbGroupMember.admin = user.getAdmin();
+                    Auth.getSingleton().cbGroupMember.read = user.getRead();
+                    Auth.getSingleton().cbGroupMember.write = user.getWrite();
+                    Auth.getSingleton().authenticated = true;
+                    Auth.getSingleton().cbGroup.groupName = Auth.getSingleton().cbGroupMember.groupName;
+                    if (Auth.getSingleton().cbGroupMember.admin){
+                        Auth.getSingleton().cbGroup.admin = Auth.getSingleton().cbGroupMember;
+                    }
+                    try {
+                        GSignalManager.getSingleton().emitGSignal(Auth.getSingleton(), "authenticated");
+                    } catch (NoSuchGSignalException e) {
+                        e.printStackTrace();
+                    }
+                    Toast.makeText(getActivity(), "登入组织成功！", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(getActivity(), String.format("登入组织失败！code:%s", responseEnterGroup.getWords()), Toast.LENGTH_SHORT).show();
+                }
+                break;
+            default:
+                break;
+        }
     }
 
 

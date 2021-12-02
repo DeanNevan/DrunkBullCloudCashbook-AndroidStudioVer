@@ -15,11 +15,18 @@ import com.drunkbull.drunkbullcloudcashbook.R;
 import com.drunkbull.drunkbullcloudcashbook.singleton.Auth;
 import com.drunkbull.drunkbullcloudcashbook.singleton.GSignalManager;
 import com.drunkbull.drunkbullcloudcashbook.singleton.NoSuchGSignalException;
+import com.drunkbull.drunkbullcloudcashbook.ui.homepage.FragmentHomepage;
 
 
 public class FragmentRecords extends Fragment {
 
     TextView textViewBlank;
+
+    public int pageIDX = -1;
+
+    public FragmentRecords(){
+        GSignalManager.getSingleton().addGSignal(this, "notify_login_first");
+    }
 
     @Nullable
     @Override
@@ -45,5 +52,17 @@ public class FragmentRecords extends Fragment {
         textViewBlank.setText("");
     }
 
+    private void onPageChanged(Integer pos){
+        int position = pos;
+        if (position == pageIDX){
+            if (!Auth.getSingleton().authenticated){
+                try {
+                    GSignalManager.getSingleton().emitGSignal(this, "notify_login_first");
+                } catch (NoSuchGSignalException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
 }

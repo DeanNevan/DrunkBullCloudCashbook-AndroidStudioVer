@@ -15,8 +15,11 @@ import java.util.Vector;
 
 public class HeartBeatManager {
 
-    static final int MAX_TIMEOUT_SECONDS = 30000;
+    static final int MAX_TIMEOUT_SECONDS = 8000;
+    static final int INF = 10000000;
     static final int SLEEP_TIME = 2000;
+
+    private boolean firstTime = true;
 
     private volatile static HeartBeatManager singleton;
     public static HeartBeatManager getSingleton() {
@@ -77,18 +80,20 @@ public class HeartBeatManager {
                     e.printStackTrace();
                 }
                 if (!active) continue;
+                ServerConnection.getSingleton().sendRequestHeartBeat();
 
                 long time = DateUtil.getTimeStamp();
-                if ((time - getSingleton().lastHeartBeatTime) > MAX_TIMEOUT_SECONDS){
-                    try {
-                        GSignalManager.getSingleton().emitGSignal(HeartBeatManager.getSingleton(), "timeout");
-                    } catch (NoSuchGSignalException e) {
-                        e.printStackTrace();
-                    }
-                    Log.e(this.getClass().getSimpleName(), "timeout");
-                }
+                long period = time - getSingleton().lastHeartBeatTime;
 
-                ServerConnection.getSingleton().sendRequestHeartBeat();
+//                if (period > MAX_TIMEOUT_SECONDS && period < INF){
+//                    Log.e(this.getClass().getSimpleName(), "timeout");
+//                    try {
+//                        GSignalManager.getSingleton().emitGSignal(HeartBeatManager.getSingleton(), "timeout");
+//                    } catch (NoSuchGSignalException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+
             }
         }
     }

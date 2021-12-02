@@ -1,5 +1,6 @@
 package com.drunkbull.drunkbullcloudcashbook;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Looper;
@@ -8,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.drunkbull.drunkbullcloudcashbook.activities.CreateGroupActivity;
+import com.drunkbull.drunkbullcloudcashbook.activities.LoginGroupActivity;
 import com.drunkbull.drunkbullcloudcashbook.network.HeartBeatManager;
 import com.drunkbull.drunkbullcloudcashbook.network.RequestWriter;
 import com.drunkbull.drunkbullcloudcashbook.network.ServerConnection;
@@ -24,6 +26,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
@@ -51,19 +54,31 @@ public class MainActivity extends AppCompatActivity {
     FragmentAccounts fragmentAccounts = new FragmentAccounts();
 
     ActivityResultLauncher<Intent> createGroupActivityLauncher;
+    ActivityResultLauncher<Intent> loginGroupActivityLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        initData();
+
         try {
+            GSignalManager.getSingleton().addGSignal(this, "create_group");
+            GSignalManager.getSingleton().addGSignal(this, "login_group");
+            GSignalManager.getSingleton().addGSignal(this, "page_changed");
+
             GSignalManager.getSingleton().connect(Auth.getSingleton(), "authenticated", this, "onAuthenticated");
             GSignalManager.getSingleton().connect(ServerConnection.getSingleton(), "connection_connected", this, "onConnectionConnected");
             GSignalManager.getSingleton().connect(ServerConnection.getSingleton(), "connection_disconnected", this, "onConnectionDisconnected");
             GSignalManager.getSingleton().connect(ServerConnection.getSingleton(), "connection_reconnecting", this, "onConnectionReconnecting");
 
             GSignalManager.getSingleton().connect(fragmentHomepage, "switch_to_create_group", this, "switchToCreateGroup");
+            GSignalManager.getSingleton().connect(fragmentHomepage, "switch_to_login_group", this, "switchToLoginGroup");
 
-            GSignalManager.getSingleton().addGSignal(this, "create_group");
-            GSignalManager.getSingleton().addGSignal(this, "login_group");
+            GSignalManager.getSingleton().connect(HeartBeatManager.getSingleton(), "timeout", this, "onConnectionDisconnected");
+
+            for (Fragment fragment : fragments){
+                GSignalManager.getSingleton().connect(this, "page_changed", fragment, "onPageChanged", new Class[]{Integer.class});
+                GSignalManager.getSingleton().connect(fragment, "notify_login_first", this, "onNotifyLoginFirst");
+            }
 
         } catch (NoSuchGSignalException e) {
             e.printStackTrace();
@@ -71,13 +86,10 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         ServerConnection.getSingleton().initChannel();
-
-        initData();
 
         textViewHeadline = findViewById(R.id.text_view_headline);
         textViewStatus = findViewById(R.id.text_view_status);
@@ -107,6 +119,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
+                try {
+                    GSignalManager.getSingleton().emitGSignal(MainActivity.this, "page_changed", new Class[]{Integer.class}, new Object[]{position});
+                } catch (NoSuchGSignalException e) {
+                    e.printStackTrace();
+                }
                 Log.d("callback", "ViewPager2.OnPageChangeCallback");
                 textViewHeadline.setText(tabTitlesIDs[position]);
             }
@@ -136,8 +153,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 Log.d("callback", "TabLayout.OnTabSelectedListener.onTabSelected");
-
-
 
             }
             @Override
@@ -170,20 +185,45 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Toast.makeText(getApplicationContext(), "已启动！", Toast.LENGTH_SHORT).show();
+        loginGroupActivityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                if (result.getResultCode() == RESULT_OK) {
+                    assert result.getData() != null;
 
+                    try {
+                        GSignalManager.getSingleton().emitGSignal(MainActivity.this, "login_group", new Class[]{Intent.class}, new Object[]{result.getData()});
+                    } catch (NoSuchGSignalException e) {
+                        e.printStackTrace();
+                    }
 
+                }
+                else if (result.getResultCode() == RESULT_CANCELED){
+                    //nothing
+                }
+            }
+        });
 
+        HeartBeatManager.getSingleton().start();
+        Toast.makeText(MainActivity.this, "已启动！", Toast.LENGTH_SHORT).show();
     }
+
+
 
     private void updateTextViewStatus(){
         textViewStatus.setText(
                 String.format(
-                        getString(R.string.text_status),
+                        "%s好，%s（%s）",
+                        getString(DateUtil.getDayTimePeriodStringID()),
                         Auth.getSingleton().cbGroupMember.nickname,
                         Auth.getSingleton().cbGroupMember.username
                 )
         );
+    }
+
+    private void onNotifyLoginFirst(){
+        Toast.makeText(this, getText(R.string.notification_login_first), Toast.LENGTH_SHORT).show();
+        Log.i("", "");
     }
 
     private void onAuthenticated(){
@@ -192,24 +232,48 @@ public class MainActivity extends AppCompatActivity {
 
     private void onConnectionConnected(){
         ServerConnection.getSingleton().sendRequestConnect();
-        HeartBeatManager.getSingleton().start();
+
         Toast.makeText(getApplicationContext(), "已连接！", Toast.LENGTH_SHORT).show();
     }
 
     private void onConnectionDisconnected(){
         HeartBeatManager.getSingleton().inactivate();
-        Toast.makeText(getApplicationContext(), "断开连接！", Toast.LENGTH_LONG).show();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.notification_disconnected);
+        //builder.setIcon(R.drawable.class_delteacher);
+        builder.setCancelable(true);
+        builder.setNegativeButton(getString(R.string.text_cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+        builder.show();
     }
 
     private void onConnectionReconnecting(){
-        Toast.makeText(getApplicationContext(), "重连中！", Toast.LENGTH_LONG).show();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.notification_reconnecting);
+        //builder.setIcon(R.drawable.class_delteacher);
+        builder.setCancelable(true);
+        builder.setNegativeButton(getString(R.string.text_cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+        builder.show();
+
+        //Toast.makeText(getApplicationContext(), "重连中！", Toast.LENGTH_LONG).show();
     }
 
 
     private void initData(){
         tabTitlesIDs = new int[]{R.string.title_homepage, R.string.title_records, R.string.title_accounts};
         tabIconIDs = new int[]{R.drawable.home, R.drawable.menu_list, R.drawable.massive_multiplayer};
-
+        fragmentHomepage.pageIDX = 0;
+        fragmentRecords.pageIDX = 1;
+        fragmentAccounts.pageIDX = 2;
         fragments.add(fragmentHomepage);
         fragments.add(fragmentRecords);
         fragments.add(fragmentAccounts);
@@ -218,6 +282,11 @@ public class MainActivity extends AppCompatActivity {
     public void switchToCreateGroup(){
         Intent intent = new Intent(this, CreateGroupActivity.class);
         createGroupActivityLauncher.launch(intent);
+    }
+
+    public void switchToLoginGroup(){
+        Intent intent = new Intent(this, LoginGroupActivity.class);
+        loginGroupActivityLauncher.launch(intent);
     }
 
 }

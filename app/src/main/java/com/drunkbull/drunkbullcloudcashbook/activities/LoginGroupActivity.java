@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.drunkbull.drunkbullcloudcashbook.MainActivity;
 import com.drunkbull.drunkbullcloudcashbook.R;
 
-public class CreateGroupActivity extends AppCompatActivity {
+public class LoginGroupActivity extends AppCompatActivity {
 
     Button buttonConfirm;
     Button buttonCancel;
@@ -19,13 +19,11 @@ public class CreateGroupActivity extends AppCompatActivity {
     EditText editTextGroupName;
     EditText editTextAdminName;
     EditText editTextAdminPassword;
-    EditText editTextAdminConfirmPassword;
-    EditText editTextAdminNickname;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_group);
+        setContentView(R.layout.activity_login_group);
 
         buttonConfirm = findViewById(R.id.button_confirm_login_group);
         buttonCancel = findViewById(R.id.button_cancel_login_group);
@@ -33,8 +31,6 @@ public class CreateGroupActivity extends AppCompatActivity {
         editTextGroupName = findViewById(R.id.edit_text_login_group_group_name);
         editTextAdminName = findViewById(R.id.edit_text_login_group_admin_name);
         editTextAdminPassword = findViewById(R.id.edit_text_login_group_admin_password);
-        editTextAdminConfirmPassword = findViewById(R.id.edit_text_create_group_admin_password_confirm);
-        editTextAdminNickname = findViewById(R.id.edit_text_create_group_admin_nickname);
 
         buttonConfirm.setOnClickListener(v -> {
 
@@ -46,9 +42,7 @@ public class CreateGroupActivity extends AppCompatActivity {
             intent
                     .putExtra("group_name", editTextGroupName.getText().toString())
                     .putExtra("admin_name", editTextAdminName.getText().toString())
-                    .putExtra("admin_password", editTextAdminPassword.getText().toString())
-                    .putExtra("admin_password_confirm", editTextAdminConfirmPassword.getText().toString())
-                    .putExtra("admin_nickname", editTextAdminNickname.getText().toString());
+                    .putExtra("admin_password", editTextAdminPassword.getText().toString());
             setResult(RESULT_OK, intent);
             finish();
         });
@@ -73,15 +67,6 @@ public class CreateGroupActivity extends AppCompatActivity {
         }
         if (editTextAdminPassword.getText().toString().equals("")){
             Toast.makeText(getApplicationContext(), "请输入管理员密码！", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        if (editTextAdminConfirmPassword.getText().toString().equals("")){
-            Toast.makeText(getApplicationContext(), "请输入二次确认密码！", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-
-        if (!editTextAdminPassword.getText().toString().equals(editTextAdminConfirmPassword.getText().toString())){
-            Toast.makeText(getApplicationContext(), "请输入相同的密码！", Toast.LENGTH_SHORT).show();
             return false;
         }
 

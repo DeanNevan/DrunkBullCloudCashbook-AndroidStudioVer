@@ -1,9 +1,61 @@
 package com.drunkbull.drunkbullcloudcashbook.utils.data;
 
+import com.drunkbull.drunkbullcloudcashbook.R;
+
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class DateUtil {
+
+    enum DayTimePeriod{
+        MIDNIGHT,
+        MORNING,
+        NOON,
+        AFTERNOON,
+        NIGHT
+    }
+
+    public static DayTimePeriod getDayTimePeriod(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        if (hour < 6){
+            return DayTimePeriod.MIDNIGHT;
+        }
+        if (hour < 12){
+            return DayTimePeriod.MORNING;
+        }
+        if (hour < 14){
+            return DayTimePeriod.NOON;
+        }
+        if (hour < 18){
+            return DayTimePeriod.AFTERNOON;
+        }
+        return DayTimePeriod.NIGHT;
+
+    }
+
+    public static int getDayTimePeriodStringID(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        if (hour < 6){
+            return R.string.text_midnight;
+        }
+        if (hour < 12){
+            return R.string.text_morning;
+        }
+        if (hour < 14){
+            return R.string.text_noon;
+        }
+        if (hour < 18){
+            return R.string.text_afternoon;
+        }
+        return R.string.text_night;
+    }
+
+
 
     /**
      * 获取时间戳

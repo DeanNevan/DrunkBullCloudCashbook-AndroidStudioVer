@@ -26,7 +26,12 @@
         <activity
             android:name=".activities.CreateGroupActivity"
             android:exported="true"
-            android:label="EditBookActivity"
+            android:label="CreateGroupActivity"
+            />
+        <activity
+            android:name=".activities.LoginGroupActivity"
+            android:exported="true"
+            android:label="LoginGroupActivity"
             />
     </application>
 

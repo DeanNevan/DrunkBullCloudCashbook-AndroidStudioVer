@@ -17,10 +17,9 @@ public class CBGroup {
     public String groupName = "";
     public CBGroupMember admin;
 
-    List<CBGroupMember> members = new ArrayList<>();
-    List<CBRecord> records = new ArrayList<>();
+    public List<CBGroupMember> members = new ArrayList<>();
+    public List<CBRecord> records = new ArrayList<>();
     public int recordsTotalCount = 0;
-
 
 
 }
