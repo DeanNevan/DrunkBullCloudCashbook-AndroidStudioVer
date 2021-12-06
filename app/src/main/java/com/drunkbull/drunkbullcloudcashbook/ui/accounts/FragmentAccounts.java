@@ -191,7 +191,7 @@ public class FragmentAccounts extends Fragment {
                 Log.d(getClass().getSimpleName(), String.format("%s:%d", "删除", pos));
                 CBGroup.CBGroupMember member = Auth.getSingleton().cbGroup.members.get(pos);
                 if (member != null){
-                    if (member.username.equals(Auth.getSingleton().cbGroup.admin)){
+                    if (member.username.equals(Auth.getSingleton().cbGroup.admin.username)){
 
                         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                         builder.setTitle("错误！");
@@ -206,9 +206,11 @@ public class FragmentAccounts extends Fragment {
 
                         break;
                     }
-                    requestRemoveAccount(
-                            member.username
-                    );
+                    else{
+                        requestRemoveAccount(
+                                member.username
+                        );
+                    }
                 }
                 break;
             case 2:
@@ -259,18 +261,42 @@ public class FragmentAccounts extends Fragment {
                         Auth.getSingleton().cbGroup.members.add(cbGroupMember);
                     }
                 }
+                else{
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setTitle(R.string.err);
+                    builder.setMessage(getString(R.string.err_get_accounts) + String.format(":%s", responseGetAccounts.getWords()));
+                    builder.setCancelable(true);
+                    builder.show();
+                }
                 updateUIAccountsList();
 
                 break;
             case ADD_ACCOUNT:
                 CBMessage.ResponseAddAccount responseAddAccount = response.getResponseAddAccount();
-                assert responseAddAccount.getResult();
-                requestGetAccounts();
+                if (responseAddAccount.getResult()){
+                    requestGetAccounts();
+                }
+                else{
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setTitle(R.string.err);
+                    builder.setMessage(getString(R.string.err_add_account) + String.format(":%s", responseAddAccount.getWords()));
+                    builder.setCancelable(true);
+                    builder.show();
+                }
                 break;
             case REMOVE_ACCOUNT:
                 CBMessage.ResponseRemoveAccount responseRemoveAccount = response.getResponseRemoveAccount();
-                assert responseRemoveAccount.getResult();
-                requestGetAccounts();
+
+                if (responseRemoveAccount.getResult()){
+                    requestGetAccounts();
+                }
+                else{
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setTitle(R.string.err);
+                    builder.setMessage(getString(R.string.err_remove_account) + String.format(":%s", responseRemoveAccount.getWords()));
+                    builder.setCancelable(true);
+                    builder.show();
+                }
                 break;
             default:
                 break;

@@ -267,7 +267,7 @@ public class FragmentRecords extends Fragment {
                     menu.add(groupID, itemID[i], order, getString(R.string.text_remove));
                     break;
                 case 2:
-                    menu.add(groupID, itemID[i], order, getString(R.string.text_view_detail) + " " + getString(R.string.text_todo));
+                    menu.add(groupID, itemID[i], order, getString(R.string.text_view_detail));
                     break;
                 case 3:
                     menu.add(groupID, itemID[i], order, getString(R.string.text_edit) + " " + getString(R.string.text_todo));
@@ -333,17 +333,41 @@ public class FragmentRecords extends Fragment {
                         Auth.getSingleton().cbGroup.records.add(cbRecord);
                     }
                 }
+                else{
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setTitle(R.string.err);
+                    builder.setMessage(getString(R.string.err_get_records) + String.format(":%s", responseGetRecords.getWords()));
+                    builder.setCancelable(true);
+                    builder.show();
+                }
                 updateUIRecordsList();
                 break;
             case ADD_RECORD:
                 CBMessage.ResponseAddRecord responseAddRecord = response.getResponseAddRecord();
-                assert responseAddRecord.getResult();
-                requestGetRecords();
+                if (responseAddRecord.getResult()){
+                    requestGetRecords();
+                }
+                else{
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setTitle(R.string.err);
+                    builder.setMessage(getString(R.string.err_add_record) + String.format(":%s", responseAddRecord.getWords()));
+                    builder.setCancelable(true);
+                    builder.show();
+                }
                 break;
             case REMOVE_RECORD:
                 CBMessage.ResponseRemoveRecord responseRemoveRecord = response.getResponseRemoveRecord();
-                assert responseRemoveRecord.getResult();
-                requestGetRecords();
+
+                if (responseRemoveRecord.getResult()){
+                    requestGetRecords();
+                }
+                else{
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setTitle(R.string.err);
+                    builder.setMessage(getString(R.string.err_remove_record) + String.format(":%s", responseRemoveRecord.getWords()));
+                    builder.setCancelable(true);
+                    builder.show();
+                }
                 break;
             default:
                 break;

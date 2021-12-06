@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.drunkbull.drunkbullcloudcashbook.R;
@@ -191,6 +192,11 @@ public class FragmentHomepage extends Fragment {
                     Toast.makeText(getActivity(), "创建组织成功！您可以尝试登入！", Toast.LENGTH_SHORT).show();
                 }
                 else{
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setTitle(R.string.err);
+                    builder.setMessage(getString(R.string.err_create_group) + String.format(":%s", responseCreateGroup.getWords()));
+                    builder.setCancelable(true);
+                    builder.show();
                     Toast.makeText(getActivity(), String.format("创建组织失败！code:%s", responseCreateGroup.getWords()), Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -218,6 +224,11 @@ public class FragmentHomepage extends Fragment {
                     Toast.makeText(getActivity(), "登入组织成功！", Toast.LENGTH_SHORT).show();
                 }
                 else{
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setTitle(R.string.err);
+                    builder.setMessage(getString(R.string.err_login_group) + String.format(":%s", responseEnterGroup.getWords()));
+                    builder.setCancelable(true);
+                    builder.show();
                     Toast.makeText(getActivity(), String.format("登入组织失败！code:%s", responseEnterGroup.getWords()), Toast.LENGTH_SHORT).show();
                 }
                 break;
