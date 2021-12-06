@@ -3,12 +3,16 @@ package com.drunkbull.drunkbullcloudcashbook.ui.accounts;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Looper;
+import android.text.Layout;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -46,6 +50,10 @@ public class FragmentAccounts extends Fragment {
 
     private FloatingActionButton floatButtonAddAccount;
 
+    private View layoutEditNickname;
+    private Button confirmEditNickname;
+    private EditText editTextNickname;
+
     int selectedAccountPosition = -1;
 
     public FragmentAccounts(){
@@ -58,6 +66,17 @@ public class FragmentAccounts extends Fragment {
 
         Log.d("callback", "FragmentAccounts.onCreateView");
         View view = inflater.inflate(R.layout.fragment_accounts, container);
+
+        layoutEditNickname = view.findViewById(R.id.layout_edit_nickname);
+        confirmEditNickname = view.findViewById(R.id.button_confirm);
+        confirmEditNickname.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String nickname = editTextNickname.getText().toString();
+                requestEditNickname(nickname);
+            }
+        });
+        editTextNickname = view.findViewById(R.id.edit_text_edit_nickname);
 
         floatButtonAddAccount = view.findViewById(R.id.float_button_add_account);
         floatButtonAddAccount.setOnClickListener(new View.OnClickListener() {
@@ -235,8 +254,20 @@ public class FragmentAccounts extends Fragment {
                 }
             }
             else{
-                updateUIAccountsList();
-                requestGetAccounts();
+                if (Auth.getSingleton().cbGroupMember.admin){
+                    accountsRecyclerView.setVisibility(View.VISIBLE);
+                    floatButtonAddAccount.setVisibility(View.VISIBLE);
+                    layoutEditNickname.setVisibility(View.INVISIBLE);
+                    updateUIAccountsList();
+                    requestGetAccounts();
+                }
+                else{
+                    accountsRecyclerView.setVisibility(View.INVISIBLE);
+                    floatButtonAddAccount.setVisibility(View.INVISIBLE);
+                    layoutEditNickname.setVisibility(View.VISIBLE);
+                    editTextNickname.setText(Auth.getSingleton().cbGroupMember.nickname);
+                }
+
             }
         }
         else{
@@ -262,11 +293,13 @@ public class FragmentAccounts extends Fragment {
                     }
                 }
                 else{
+                    //Looper.prepare();
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                     builder.setTitle(R.string.err);
                     builder.setMessage(getString(R.string.err_get_accounts) + String.format(":%s", responseGetAccounts.getWords()));
                     builder.setCancelable(true);
                     builder.show();
+                    //Looper.loop();
                 }
                 updateUIAccountsList();
 
@@ -277,11 +310,13 @@ public class FragmentAccounts extends Fragment {
                     requestGetAccounts();
                 }
                 else{
+                    //Looper.prepare();
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                     builder.setTitle(R.string.err);
                     builder.setMessage(getString(R.string.err_add_account) + String.format(":%s", responseAddAccount.getWords()));
                     builder.setCancelable(true);
                     builder.show();
+                    //Looper.loop();
                 }
                 break;
             case REMOVE_ACCOUNT:
@@ -291,13 +326,27 @@ public class FragmentAccounts extends Fragment {
                     requestGetAccounts();
                 }
                 else{
+                    //Looper.prepare();
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                     builder.setTitle(R.string.err);
                     builder.setMessage(getString(R.string.err_remove_account) + String.format(":%s", responseRemoveAccount.getWords()));
                     builder.setCancelable(true);
                     builder.show();
+                    //Looper.loop();
                 }
                 break;
+            case EDIT_NICKNAME:
+                CBMessage.ResponseEditNickname responseEditNickname = response.getResponseEditNickname();
+                if (responseEditNickname.getResult()){
+                    //Looper.prepare();
+                    Toast.makeText(getActivity(), "改名成功", Toast.LENGTH_SHORT).show();
+                    //Looper.loop();
+                }
+                else{
+                    //Looper.prepare();
+                    Toast.makeText(getActivity(), String.format("改名失败 err code:%s", responseEditNickname.getWords()), Toast.LENGTH_SHORT).show();
+                    //Looper.loop();
+                }
             default:
                 break;
         }
@@ -367,6 +416,23 @@ public class FragmentAccounts extends Fragment {
         builder
                 .setRequestGetAccounts(requestGetAccountsBuilder.build())
                 .setType(CBMessage.Type.GET_ACCOUNTS);
+
+        ServerConnection.getSingleton().sendRequest(builder);
+    }
+
+    public void requestEditNickname(String nickname){
+        CBMessage.Request.Builder builder = CBMessage.Request.newBuilder();
+
+        CBMessage.RequestEditNickname.Builder requestEditNicknameBuilder = CBMessage.RequestEditNickname.newBuilder();
+
+        requestEditNicknameBuilder
+                .setUsername(Auth.getSingleton().cbGroupMember.username)
+                .setNickname(nickname)
+                .setGroupname(Auth.getSingleton().cbGroup.groupName);
+
+        builder
+                .setRequestEditNickname(requestEditNicknameBuilder.build())
+                .setType(CBMessage.Type.EDIT_NICKNAME);
 
         ServerConnection.getSingleton().sendRequest(builder);
     }

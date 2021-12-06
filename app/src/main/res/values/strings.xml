@@ -67,6 +67,7 @@
     <string name="text_replace_authentication">您已登录，再次登录将覆盖登录状态。</string>
     <string name="text_manage_search_contents">筛查管理</string>
     <string name="text_sort_type">排序管理</string>
+    <string name="text_edit_nickname">修改你的昵称吧！</string>
 
     <string name="err">错误</string>
     <string name="err_get_accounts">获取账户列表出错</string>

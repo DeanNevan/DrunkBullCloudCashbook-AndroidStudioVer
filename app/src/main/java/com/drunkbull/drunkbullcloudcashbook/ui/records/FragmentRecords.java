@@ -3,6 +3,7 @@ package com.drunkbull.drunkbullcloudcashbook.ui.records;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -334,11 +335,13 @@ public class FragmentRecords extends Fragment {
                     }
                 }
                 else{
+                    //Looper.prepare();
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                     builder.setTitle(R.string.err);
                     builder.setMessage(getString(R.string.err_get_records) + String.format(":%s", responseGetRecords.getWords()));
                     builder.setCancelable(true);
                     builder.show();
+                    //Looper.loop();
                 }
                 updateUIRecordsList();
                 break;
@@ -348,11 +351,13 @@ public class FragmentRecords extends Fragment {
                     requestGetRecords();
                 }
                 else{
+                    //Looper.prepare();
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                     builder.setTitle(R.string.err);
                     builder.setMessage(getString(R.string.err_add_record) + String.format(":%s", responseAddRecord.getWords()));
                     builder.setCancelable(true);
                     builder.show();
+                    //Looper.loop();
                 }
                 break;
             case REMOVE_RECORD:
@@ -362,11 +367,13 @@ public class FragmentRecords extends Fragment {
                     requestGetRecords();
                 }
                 else{
+                    //Looper.prepare();
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                     builder.setTitle(R.string.err);
                     builder.setMessage(getString(R.string.err_remove_record) + String.format(":%s", responseRemoveRecord.getWords()));
                     builder.setCancelable(true);
                     builder.show();
+                    //Looper.loop();
                 }
                 break;
             default:

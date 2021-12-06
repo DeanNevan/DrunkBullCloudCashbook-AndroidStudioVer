@@ -3,6 +3,7 @@ package com.drunkbull.drunkbullcloudcashbook.ui.homepage;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -192,12 +193,14 @@ public class FragmentHomepage extends Fragment {
                     Toast.makeText(getActivity(), "创建组织成功！您可以尝试登入！", Toast.LENGTH_SHORT).show();
                 }
                 else{
+                    //Looper.prepare();
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                     builder.setTitle(R.string.err);
                     builder.setMessage(getString(R.string.err_create_group) + String.format(":%s", responseCreateGroup.getWords()));
                     builder.setCancelable(true);
                     builder.show();
                     Toast.makeText(getActivity(), String.format("创建组织失败！code:%s", responseCreateGroup.getWords()), Toast.LENGTH_SHORT).show();
+                    //Looper.loop();
                 }
                 break;
             case ENTER_GROUP:
@@ -224,12 +227,14 @@ public class FragmentHomepage extends Fragment {
                     Toast.makeText(getActivity(), "登入组织成功！", Toast.LENGTH_SHORT).show();
                 }
                 else{
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    //Looper.prepare();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
                     builder.setTitle(R.string.err);
                     builder.setMessage(getString(R.string.err_login_group) + String.format(":%s", responseEnterGroup.getWords()));
                     builder.setCancelable(true);
                     builder.show();
                     Toast.makeText(getActivity(), String.format("登入组织失败！code:%s", responseEnterGroup.getWords()), Toast.LENGTH_SHORT).show();
+                    //Looper.loop();
                 }
                 break;
             default:
