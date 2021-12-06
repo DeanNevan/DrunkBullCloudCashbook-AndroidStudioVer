@@ -1,4 +1,4 @@
-package com.drunkbull.drunkbullcloudcashbook.ui.accounts.adapter;
+package com.drunkbull.drunkbullcloudcashbook.ui.records;
 
 import android.content.Context;
 import android.util.Log;
@@ -12,14 +12,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.drunkbull.drunkbullcloudcashbook.R;
 import com.drunkbull.drunkbullcloudcashbook.pojo.CBGroup;
+import com.drunkbull.drunkbullcloudcashbook.pojo.CBRecord;
 import com.drunkbull.drunkbullcloudcashbook.singleton.GSignalManager;
 import com.drunkbull.drunkbullcloudcashbook.singleton.NoSuchGSignalException;
 import com.drunkbull.drunkbullcloudcashbook.utils.Para2TextFormatter;
+import com.drunkbull.drunkbullcloudcashbook.utils.data.TimeUtil;
 
+import java.util.Date;
 import java.util.List;
 
-public class AccountsListAdapter extends RecyclerView.Adapter<AccountsListAdapter.MyViewHolder> {
-    private List<CBGroup.CBGroupMember> accountsList;
+public class RecordsListAdapter extends RecyclerView.Adapter<RecordsListAdapter.MyViewHolder> {
+    private List<CBRecord> recordsList;
     private Context context;
     private LayoutInflater inflater;
 
@@ -33,26 +36,26 @@ public class AccountsListAdapter extends RecyclerView.Adapter<AccountsListAdapte
         this.contextMenuPosition = contextMenuPosition;
     }
 
-    public AccountsListAdapter(Context context, List<CBGroup.CBGroupMember> data){
-        GSignalManager.getSingleton().addGSignal(this, "create_account_context_menu");
+    public RecordsListAdapter(Context context, List<CBRecord> data){
+        GSignalManager.getSingleton().addGSignal(this, "create_record_context_menu");
         this.context = context;
-        this.accountsList = data;
+        this.recordsList = data;
         inflater = LayoutInflater.from(context);
 
     }
 
-    public CBGroup.CBGroupMember getAccountViaPosition(int pos){
-        return accountsList.get(pos);
+    public CBRecord getRecordViaPosition(int pos){
+        return recordsList.get(pos);
     }
 
     @Override
     public int getItemCount() {
-        return accountsList.size();
+        return recordsList.size();
     }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = inflater.inflate(R.layout.item_account, parent, false);
+        View view = inflater.inflate(R.layout.item_record, parent, false);
         MyViewHolder holder= new MyViewHolder(view);
         return holder;
 
@@ -60,14 +63,23 @@ public class AccountsListAdapter extends RecyclerView.Adapter<AccountsListAdapte
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, final int position) {
-        CBGroup.CBGroupMember member = accountsList.get(position);
+        CBRecord record = recordsList.get(position);
         Log.d("test", String.valueOf(position));
 
-        holder.textViewID.setText((position + 1) + ".");
-        holder.textViewUsername.setText(member.username);
-        holder.textViewNickname.setText(member.nickname);
-        holder.textViewAuthority.setText(Para2TextFormatter.getCBGroupMemberAuthorityStringRID(member));
-        holder.textViewCounter.setText(R.string.text_space);
+        holder.textViewID.setText(record.id + ".");
+        holder.textViewTitle.setText(record.title);
+        holder.textViewUsername.setText(record.username);
+        holder.textViewMoney.setText(String.valueOf(record.money));
+        if (record.money < 0){
+            holder.textViewMoney.setTextColor(context.getResources().getColor(R.color.green));
+        }
+        else if (record.money > 0){
+            holder.textViewMoney.setTextColor(context.getResources().getColor(R.color.red));
+        }
+
+        long timestamp = record.dateTime;
+        String timeString = TimeUtil.stampToDate(timestamp);
+        holder.textViewDate.setText(timeString);
 
         holder.itemView.setLongClickable(true);
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -95,17 +107,17 @@ public class AccountsListAdapter extends RecyclerView.Adapter<AccountsListAdapte
 
     class MyViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
         TextView textViewID;
+        TextView textViewTitle;
         TextView textViewUsername;
-        TextView textViewNickname;
-        TextView textViewAuthority;
-        TextView textViewCounter;
+        TextView textViewMoney;
+        TextView textViewDate;
         public MyViewHolder(View view) {
             super(view);
             textViewID = (TextView) view.findViewById(R.id.text_view_record_id);
-            textViewUsername = (TextView) view.findViewById(R.id.text_view_record_title);
-            textViewNickname = (TextView) view.findViewById(R.id.text_view_account_nickname);
-            textViewAuthority = (TextView) view.findViewById(R.id.text_view_account_authority);
-            textViewCounter = (TextView) view.findViewById(R.id.text_view_account_counter);
+            textViewTitle = (TextView) view.findViewById(R.id.text_view_record_title);
+            textViewUsername = (TextView) view.findViewById(R.id.text_view_record_username);
+            textViewMoney = (TextView) view.findViewById(R.id.text_view_record_money);
+            textViewDate = (TextView) view.findViewById(R.id.text_view_record_datetime);
 
             view.setOnCreateContextMenuListener(this);
         }
@@ -117,11 +129,11 @@ public class AccountsListAdapter extends RecyclerView.Adapter<AccountsListAdapte
             if (pos == -1){
                 return;
             }
-            CBGroup.CBGroupMember member = accountsList.get(getContextMenuPosition());
+            CBRecord record = recordsList.get(getContextMenuPosition());
             Log.i("Adapter", "onCreateContextMenu: " + getContextMenuPosition());
-            menu.setHeaderTitle(member.username);
+            menu.setHeaderTitle(record.title);
             try {
-                GSignalManager.getSingleton().emitGSignal(AccountsListAdapter.this, "create_account_context_menu", new Class[]{ContextMenu.class}, new Object[]{menu});
+                GSignalManager.getSingleton().emitGSignal(RecordsListAdapter.this, "create_record_context_menu", new Class[]{ContextMenu.class}, new Object[]{menu});
             } catch (NoSuchGSignalException e) {
                 e.printStackTrace();
             }

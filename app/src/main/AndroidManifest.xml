@@ -33,6 +33,11 @@
             android:exported="true"
             android:label="LoginGroupActivity"
             />
+        <activity
+            android:name=".activities.GroupDashboardActivity"
+            android:exported="true"
+            android:label="GroupDashboardActivity"
+            />
     </application>
 
 </manifest>

@@ -1,6 +1,7 @@
 package com.drunkbull.drunkbullcloudcashbook.ui.accounts;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -35,8 +37,9 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 
 public class FragmentAccounts extends Fragment {
 
+    public int pageIDX = 0;
     private Context context;
-    public int pageIDX = -1;
+    private boolean current = false;
 
     private AccountsListAdapter accountsListAdapter;
     private RecyclerView accountsRecyclerView;
@@ -52,6 +55,7 @@ public class FragmentAccounts extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         Log.d("callback", "FragmentAccounts.onCreateView");
         View view = inflater.inflate(R.layout.fragment_accounts, container);
 
@@ -75,6 +79,8 @@ public class FragmentAccounts extends Fragment {
         accountsRecyclerView.setVisibility(View.INVISIBLE);
 
         try {
+            GSignalManager.getSingleton().connect(Auth.getSingleton(), "authenticated", this, "onAuthenticated");
+            GSignalManager.getSingleton().connect(ServerConnection.getSingleton(), "responsed", this, "onResponsed", new Class[]{CBMessage.Response.class});
             GSignalManager.getSingleton().connect(accountsListAdapter, "create_account_context_menu", this, "onCreateAccountContextMenu", new Class[]{ContextMenu.class});
         } catch (NoSuchGSignalException e) {
             e.printStackTrace();
@@ -106,15 +112,6 @@ public class FragmentAccounts extends Fragment {
             }
         });
 
-        try {
-            GSignalManager.getSingleton().connect(Auth.getSingleton(), "authenticated", this, "onAuthenticated");
-            GSignalManager.getSingleton().connect(ServerConnection.getSingleton(), "responsed", this, "onResponsed", new Class[]{CBMessage.Response.class});
-        } catch (NoSuchGSignalException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-
         return view;
     }
 
@@ -140,7 +137,6 @@ public class FragmentAccounts extends Fragment {
                         nickname,
                         password
                 );
-                requestGetAccounts();
 
                 Toast.makeText(getContext(), getString(R.string.text_add_account),Toast.LENGTH_SHORT).show();
             }
@@ -149,7 +145,9 @@ public class FragmentAccounts extends Fragment {
     }
 
     private void updateUIAccountsList(){
+        //accountsRecyclerView.setAdapter(accountsListAdapter);
         accountsListAdapter.notifyDataSetChanged();
+        accountsRecyclerView.refreshDrawableState();
         if (Auth.getSingleton().authenticated){
             accountsRecyclerView.setVisibility(View.VISIBLE);
         }
@@ -159,7 +157,7 @@ public class FragmentAccounts extends Fragment {
     }
 
     private void onCreateAccountContextMenu(ContextMenu menu){
-        int groupID = 0;
+        int groupID = 1;
         int order = 0;
         int[] itemID = {1, 2, 3};
 
@@ -171,10 +169,10 @@ public class FragmentAccounts extends Fragment {
                     menu.add(groupID, itemID[i], order, getString(R.string.text_remove));
                     break;
                 case 2:
-                    menu.add(groupID, itemID[i], order, getString(R.string.text_edit) + " " + getString(R.string.text_todo));
+                    menu.add(groupID, itemID[i], order, getString(R.string.text_view_detail) + " " + getString(R.string.text_todo));
                     break;
                 case 3:
-                    menu.add(groupID, itemID[i], order, getString(R.string.text_view_detail) + " " + getString(R.string.text_todo));
+                    menu.add(groupID, itemID[i], order, getString(R.string.text_edit) + " " + getString(R.string.text_todo));
                     break;
                 default:
                     break;
@@ -184,16 +182,33 @@ public class FragmentAccounts extends Fragment {
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
+        if (item.getGroupId() != 1){
+            return super.onContextItemSelected(item);
+        }
         switch (item.getItemId()) {
             case 1:
                 int pos = accountsListAdapter.getContextMenuPosition();
-                Log.d("BookList", String.format("%s:%d", "删除", pos));
+                Log.d(getClass().getSimpleName(), String.format("%s:%d", "删除", pos));
                 CBGroup.CBGroupMember member = Auth.getSingleton().cbGroup.members.get(pos);
                 if (member != null){
+                    if (member.username.equals(Auth.getSingleton().cbGroup.admin)){
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        builder.setTitle("错误！");
+                        builder.setMessage("无法删除管理员账户");
+                        builder.setCancelable(true);
+                        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        });
+                        builder.show();
+
+                        break;
+                    }
                     requestRemoveAccount(
                             member.username
                     );
-                    requestGetAccounts();
                 }
                 break;
             case 2:
@@ -206,9 +221,10 @@ public class FragmentAccounts extends Fragment {
         return super.onContextItemSelected(item);
     }
 
-    private void onPageChanged(Integer pos){
+    public void onPageChanged(Integer pos){
         int position = pos;
         if (position == pageIDX){
+            current = true;
             if (!Auth.getSingleton().authenticated){
                 try {
                     GSignalManager.getSingleton().emitGSignal(this, "notify_login_first");
@@ -220,6 +236,9 @@ public class FragmentAccounts extends Fragment {
                 updateUIAccountsList();
                 requestGetAccounts();
             }
+        }
+        else{
+            current = false;
         }
     }
 
@@ -241,10 +260,17 @@ public class FragmentAccounts extends Fragment {
                     }
                 }
                 updateUIAccountsList();
+
                 break;
             case ADD_ACCOUNT:
+                CBMessage.ResponseAddAccount responseAddAccount = response.getResponseAddAccount();
+                assert responseAddAccount.getResult();
+                requestGetAccounts();
                 break;
             case REMOVE_ACCOUNT:
+                CBMessage.ResponseRemoveAccount responseRemoveAccount = response.getResponseRemoveAccount();
+                assert responseRemoveAccount.getResult();
+                requestGetAccounts();
                 break;
             default:
                 break;
@@ -303,7 +329,7 @@ public class FragmentAccounts extends Fragment {
         ServerConnection.getSingleton().sendRequest(builder);
     }
 
-    private void requestGetAccounts(){
+    public void requestGetAccounts(){
         CBMessage.Request.Builder builder = CBMessage.Request.newBuilder();
 
         CBMessage.RequestGetAccounts.Builder requestGetAccountsBuilder = CBMessage.RequestGetAccounts.newBuilder();

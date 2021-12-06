@@ -3,7 +3,9 @@ package com.drunkbull.drunkbullcloudcashbook.network;
 
 import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.drunkbull.drunkbullcloudcashbook.R;
 import com.drunkbull.drunkbullcloudcashbook.protobuf.CBMessage;
 import com.drunkbull.drunkbullcloudcashbook.singleton.Auth;
 import com.drunkbull.drunkbullcloudcashbook.singleton.GSignalManager;

@@ -5,6 +5,7 @@
     <string name="title_accounts">账户管理</string>
     <string name="notification_login_first">请先登录…</string>
     <string name="notification_refresh_success">刷新成功！</string>
+    <string name="notification_got_data">获取数据！</string>
     <string name="notification_refresh_fail">刷新失败！</string>
     <string name="notification_loadmore_success">加载成功！</string>
     <string name="notification_loadmore_fail">加载失败！</string>
@@ -12,11 +13,18 @@
     <string name="notification_reconnecting">重连服务器中...</string>
     <string name="notification_username_no_null">账户不能为空！</string>
     <string name="notification_password_no_null">密码不能为空！</string>
+    <string name="notification_title_no_null">标题不能为空！</string>
+    <string name="notification_invalid_date_and_updated">日期不合法，已强制修改！</string>
+    <string name="notification_date_no_null">日期不能为空！</string>
+    <string name="notification_money_no_null">金额不能为空！</string>
     <string name="notification_password_confirm_incorrect">两次密码不同！</string>
     <string name="text_status">你好，%s(%s)</string>
     <string name="text_create_group">创建组织</string>
     <string name="text_login_group">登入组织</string>
     <string name="text_group_dashboard">组织Dashboard</string>
+    <string name="text_group_members_count">组织成员数量</string>
+    <string name="text_group_records_count">记账记录数量</string>
+    <string name="text_group_total_money">总金额</string>
     <string name="text_group_name">组织名称：</string>
     <string name="text_admin_name">管理员账号：</string>
     <string name="text_set_username">账号：</string>
@@ -28,6 +36,7 @@
     <string name="text_admin_nickname">管理员昵称：</string>
     <string name="text_confirm">确认</string>
     <string name="text_cancel">取消</string>
+    <string name="text_return">返回</string>
     <string name="text_midnight">深夜</string>
     <string name="text_night">晚上</string>
     <string name="text_morning">早上</string>
@@ -40,8 +49,22 @@
     <string name="text_space"> </string>
     <string name="text_add">添加</string>
     <string name="text_add_account">添加账户</string>
+    <string name="text_add_record">添加记录</string>
+    <string name="text_title">标题</string>
+    <string name="text_comment">备注</string>
+    <string name="text_username">用户名</string>
+    <string name="text_nickname">昵称</string>
+    <string name="text_money">金额</string>
+    <string name="text_date">日期</string>
     <string name="text_remove">删除</string>
     <string name="text_edit">编辑</string>
+    <string name="text_id">ID</string>
+    <string name="text_ascend">升序</string>
+    <string name="text_descend">降序</string>
     <string name="text_view_detail">查看详情</string>
     <string name="text_todo">Todo</string>
+    <string name="text_please_confirm">请确认</string>
+    <string name="text_replace_authentication">您已登录，再次登录将覆盖登录状态。</string>
+    <string name="text_manage_search_contents">筛查管理</string>
+    <string name="text_sort_type">排序管理</string>
 </resources>

@@ -28,7 +28,7 @@ public class CreateGroupActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_group);
 
         buttonConfirm = findViewById(R.id.button_confirm_login_group);
-        buttonCancel = findViewById(R.id.button_cancel_login_group);
+        buttonCancel = findViewById(R.id.button_return);
 
         editTextGroupName = findViewById(R.id.edit_text_login_group_group_name);
         editTextAdminName = findViewById(R.id.edit_text_login_group_admin_name);

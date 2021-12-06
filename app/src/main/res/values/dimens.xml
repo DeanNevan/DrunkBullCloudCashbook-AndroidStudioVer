@@ -12,4 +12,5 @@
     <dimen name="medium_button_size_height">42dp</dimen>
     <dimen name="big_button_size_width">240dp</dimen>
     <dimen name="big_button_size_height">48dp</dimen>
+    <dimen name="app_bar_height">64dp</dimen>
 </resources>

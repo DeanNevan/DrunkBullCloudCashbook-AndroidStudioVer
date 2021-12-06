@@ -10,14 +10,20 @@
         <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/drawable/ic_notifications_black_24dp.xml" value="0.22083333333333333" />
         <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/drawable/shape_toastutils_bg.xml" value="0.23645833333333333" />
         <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/layout/activity_create_group.xml" value="0.5" />
+        <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/layout/activity_group_dashboard.xml" value="0.33" />
+        <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/layout/activity_group_homepage.xml" value="0.22291666666666668" />
         <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/layout/activity_login_group.xml" value="0.24895833333333334" />
         <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/layout/dialog_add_account.xml" value="0.33" />
+        <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/layout/dialog_add_record.xml" value="0.3129528985507246" />
+        <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/layout/dialog_records_manage_search_contents.xml" value="0.3129528985507246" />
+        <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/layout/dialog_records_sort_type.xml" value="0.24791666666666667" />
         <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/layout/fragment_accounts.xml" value="0.25" />
         <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/layout/fragment_homepage.xml" value="0.25" />
-        <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/layout/fragment_records.xml" value="0.2046875" />
+        <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/layout/fragment_records.xml" value="0.33" />
         <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/layout/fragment_settings.xml" value="0.3333333333333333" />
         <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/layout/item_account.xml" value="0.5" />
+        <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/layout/item_record.xml" value="0.3129528985507246" />
         <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/layout/toast.xml" value="0.33" />
         <entry key="..\:/ASProjects/DrunkBullCloudCashbook/app/src/main/res/menu/bottom_nav_menu.xml" value="0.2046875" />
       </map>

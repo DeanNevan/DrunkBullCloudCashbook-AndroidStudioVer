@@ -82,6 +82,28 @@ public class DateUtil {
             return 0;
         }
     }
+
+    /**
+     * 获取精确到毫秒的时间戳
+     * @return
+     */
+    public static long getMillisecondTimestamp(Date date){
+        if (null == date) {
+            return 0;
+        }
+        String timestamp = String.valueOf(date.getTime());
+        int length = timestamp.length();
+        if (length > 3) {
+            return Long.valueOf(timestamp.substring(0,length));
+        } else {
+            return 0;
+        }
+    }
+
+    public static Date getCurrentDate(){
+        return new Date();
+    }
+
     /**
      * 获取格式化的时间
      * 输出格式：2015-08-04 20:55:35

@@ -1,4 +1,4 @@
-package com.drunkbull.drunkbullcloudcashbook.ui.accounts;
+package com.drunkbull.drunkbullcloudcashbook.ui.records;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -9,25 +9,34 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
 import com.drunkbull.drunkbullcloudcashbook.R;
+import com.drunkbull.drunkbullcloudcashbook.utils.data.DateUtil;
+import com.drunkbull.drunkbullcloudcashbook.utils.data.TimeUtil;
 
-public class AddAccountDialog extends Dialog implements View.OnClickListener {
+import java.util.Date;
+
+public class RecordSortTypeDialog extends Dialog implements View.OnClickListener {
     //声明xml文件里的组件
-    private TextView textViewTitle, textViewMessage;
+    private TextView textViewTitle;
     private Button buttonCancel, buttonConfirm;
 
-    private EditText editTextUsername;
-    private EditText editTextNickname;
-    private EditText editTextPassword;
-    private EditText editTextPasswordConfirm;
+    private RadioGroup radioGroupAscend;
+    private RadioGroup radioGroupSortType;
 
     //声明两个点击事件，等会一定要为取消和确定这两个按钮也点击事件
     private IOnCancelListener cancelListener;
     private IOnConfirmListener confirmListener;
+
+    public String selectedAscendString = "";
+    public int selectedAscendButtonID = 0;
+    public String selectedSortTypeString = "";
+    public int selectedSortTypeButtonID = 0;
 
     public void setCancel(IOnCancelListener cancelListener) {
         this.cancelListener=cancelListener;
@@ -37,10 +46,12 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
     }
 
     //CustomDialog类的构造方法
-    public AddAccountDialog(@NonNull Context context) {
+    public RecordSortTypeDialog(@NonNull Context context, int selectedAscendButtonID, int selectedSortTypeButtonID) {
         super(context);
+        this.selectedAscendButtonID = selectedAscendButtonID;
+        this.selectedSortTypeButtonID = selectedSortTypeButtonID;
     }
-    public AddAccountDialog(@NonNull Context context, int themeResId) {
+    public RecordSortTypeDialog(@NonNull Context context, int themeResId) {
         super(context, themeResId);
     }
 
@@ -49,7 +60,7 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //为了锁定app界面的东西是来自哪个xml文件
-        setContentView(R.layout.dialog_add_account);
+        setContentView(R.layout.dialog_records_sort_type);
 
         //设置弹窗的宽度
         WindowManager m = getWindow().getWindowManager();
@@ -62,16 +73,37 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
 
         //找到组件
         textViewTitle = findViewById(R.id.text_view_title);
-        textViewMessage = findViewById(R.id.text_view_message);
         buttonCancel = findViewById(R.id.button_cancel);
         buttonConfirm = findViewById(R.id.button_confirm);
 
-        editTextUsername = findViewById(R.id.edit_text_add_record_title);
-        editTextNickname = findViewById(R.id.edit_text_add_record_comment);
-        editTextPassword = findViewById(R.id.edit_text_add_account_password);
-        editTextPasswordConfirm = findViewById(R.id.edit_text_add_account_password_confirm);
+        radioGroupAscend = (RadioGroup) findViewById(R.id.radio_group_ascend);
+        radioGroupSortType = (RadioGroup) findViewById(R.id.radio_group_sort_type);
 
-        textViewMessage.setText("");
+        if (selectedAscendButtonID != 0){
+            radioGroupAscend.check(selectedAscendButtonID);
+        }
+
+        if (selectedSortTypeButtonID != 0){
+            radioGroupSortType.check(selectedSortTypeButtonID);
+        }
+
+        radioGroupAscend.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                RadioButton radioButton = (RadioButton) findViewById(i);//获取被选择的单选按钮
+                selectedAscendString = radioButton.getText().toString();
+                selectedAscendButtonID = i;
+            }
+        });
+
+        radioGroupSortType.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                RadioButton radioButton = (RadioButton) findViewById(i);//获取被选择的单选按钮
+                selectedSortTypeString = radioButton.getText().toString();
+                selectedSortTypeButtonID = i;
+            }
+        });
 
         //为两个按钮添加点击事件
         buttonConfirm.setOnClickListener(this);
@@ -82,8 +114,6 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.button_cancel:
-                textViewMessage.setText("");
-
                 if(cancelListener!=null){
                     cancelListener.onCancel(this);
                 }
@@ -91,49 +121,20 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
                 break;
             case R.id.button_confirm:
                 if(confirmListener!=null){
-                    textViewMessage.setText("");
-
-                    if (getUsername().equals("")){
-                        textViewMessage.setText(R.string.notification_username_no_null);
-                    }
-                    else if(getPassword().equals("")){
-                        textViewMessage.setText(R.string.notification_password_no_null);
-                    }
-                    else if(!getPassword().equals(getPasswordConfirm())){
-                        textViewMessage.setText(R.string.notification_password_confirm_incorrect);
-                    }
-                    else{
-                        confirmListener.onConfirm(this);
-                        dismiss();//按钮按之后会消失
-                    }
+                    confirmListener.onConfirm(this);
+                    dismiss();//按钮按之后会消失
                 }
                 break;
         }
     }
 
-    public String getUsername(){
-        return editTextUsername.getText().toString();
-    }
-
-    public String getNickname(){
-        return editTextNickname.getText().toString();
-    }
-
-    public String getPassword(){
-        return editTextPassword.getText().toString();
-    }
-
-    public String getPasswordConfirm(){
-        return editTextPasswordConfirm.getText().toString();
-    }
-
     //写两个接口，当要创建一个CustomDialog对象的时候，必须要实现这两个接口
     //也就是说，当要弹出一个自定义dialog的时候，取消和确定这两个按钮的点击事件，一定要重写！
     public interface IOnCancelListener{
-        void onCancel(AddAccountDialog dialog);
+        void onCancel(RecordSortTypeDialog dialog);
     }
     public interface IOnConfirmListener{
-        void onConfirm(AddAccountDialog dialog);
+        void onConfirm(RecordSortTypeDialog dialog);
     }
 
 }

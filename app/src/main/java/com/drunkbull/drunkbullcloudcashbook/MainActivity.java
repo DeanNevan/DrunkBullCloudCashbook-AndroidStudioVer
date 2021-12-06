@@ -3,15 +3,14 @@ package com.drunkbull.drunkbullcloudcashbook;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Looper;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.drunkbull.drunkbullcloudcashbook.activities.CreateGroupActivity;
+import com.drunkbull.drunkbullcloudcashbook.activities.GroupDashboardActivity;
 import com.drunkbull.drunkbullcloudcashbook.activities.LoginGroupActivity;
 import com.drunkbull.drunkbullcloudcashbook.network.HeartBeatManager;
-import com.drunkbull.drunkbullcloudcashbook.network.RequestWriter;
 import com.drunkbull.drunkbullcloudcashbook.network.ServerConnection;
 import com.drunkbull.drunkbullcloudcashbook.protobuf.CBMessage;
 import com.drunkbull.drunkbullcloudcashbook.singleton.Auth;
@@ -32,10 +31,12 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.drunkbull.drunkbullcloudcashbook.utils.data.DateUtil;
+import com.drunkbull.drunkbullcloudcashbook.utils.data.TimeUtil;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
     ActivityResultLauncher<Intent> createGroupActivityLauncher;
     ActivityResultLauncher<Intent> loginGroupActivityLauncher;
+    ActivityResultLauncher<Intent> groupDashboardActivityLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,12 +68,14 @@ public class MainActivity extends AppCompatActivity {
             GSignalManager.getSingleton().addGSignal(this, "page_changed");
 
             GSignalManager.getSingleton().connect(Auth.getSingleton(), "authenticated", this, "onAuthenticated");
+            GSignalManager.getSingleton().connect(ServerConnection.getSingleton(), "responsed", this, "onResponsed", new Class[]{CBMessage.Response.class});
             GSignalManager.getSingleton().connect(ServerConnection.getSingleton(), "connection_connected", this, "onConnectionConnected");
             GSignalManager.getSingleton().connect(ServerConnection.getSingleton(), "connection_disconnected", this, "onConnectionDisconnected");
             GSignalManager.getSingleton().connect(ServerConnection.getSingleton(), "connection_reconnecting", this, "onConnectionReconnecting");
 
             GSignalManager.getSingleton().connect(fragmentHomepage, "switch_to_create_group", this, "switchToCreateGroup");
             GSignalManager.getSingleton().connect(fragmentHomepage, "switch_to_login_group", this, "switchToLoginGroup");
+            GSignalManager.getSingleton().connect(fragmentHomepage, "switch_to_group_homepage", this, "switchToGroupHomepage");
 
             GSignalManager.getSingleton().connect(HeartBeatManager.getSingleton(), "timeout", this, "onConnectionDisconnected");
 
@@ -204,11 +208,28 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        groupDashboardActivityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                if (result.getResultCode() == RESULT_OK) {
+                    assert result.getData() != null;
+                }
+                else if (result.getResultCode() == RESULT_CANCELED){
+                    //nothing
+                }
+            }
+        });
+
         HeartBeatManager.getSingleton().start();
         Toast.makeText(MainActivity.this, "已启动！", Toast.LENGTH_SHORT).show();
     }
 
 
+    private void onResponsed(CBMessage.Response response){
+        if (response.getType() != CBMessage.Type.HEARTBEAT){
+            //Toast.makeText(this, getText(R.string.notification_got_data) + ":" + response.getType().toString(), Toast.LENGTH_SHORT).show();
+        }
+    }
 
     private void updateTextViewStatus(){
         textViewStatus.setText(
@@ -285,8 +306,50 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void switchToLoginGroup(){
-        Intent intent = new Intent(this, LoginGroupActivity.class);
-        loginGroupActivityLauncher.launch(intent);
+        if (Auth.getSingleton().authenticated){
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle(R.string.text_please_confirm);
+            builder.setMessage(R.string.text_replace_authentication);
+            builder.setPositiveButton(R.string.text_confirm, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Auth.getSingleton().authenticated = false;
+                    Intent intent = new Intent(MainActivity.this, LoginGroupActivity.class);
+                    loginGroupActivityLauncher.launch(intent);
+                }
+            });
+            builder.setNegativeButton(R.string.text_cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+            builder.show();
+        }
+        else{
+            Intent intent = new Intent(this, LoginGroupActivity.class);
+            loginGroupActivityLauncher.launch(intent);
+        }
     }
+
+    public void switchToGroupHomepage(){
+        if (Auth.getSingleton().authenticated){
+            Intent intent = new Intent(this, GroupDashboardActivity.class);
+            groupDashboardActivityLauncher.launch(intent);
+        }
+        else{
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle(R.string.notification_login_first);
+            builder.setMessage(R.string.notification_login_first);
+            builder.setNegativeButton(R.string.text_cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+            builder.show();
+        }
+
+    }
+
+
 
 }

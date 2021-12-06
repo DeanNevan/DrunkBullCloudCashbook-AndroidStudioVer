@@ -21,44 +21,49 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:ellipsize="none"
-        android:gravity="right|fill"
+        android:gravity="center_vertical"
         android:singleLine="false"
         android:text="TextView"
         android:textAlignment="textStart"
         android:textSize="@dimen/activity_normal_font_size" />
 
     <TextView
-        android:id="@+id/text_view_account_nickname"
+        android:id="@+id/text_view_record_username"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="1"
+        android:autoText="false"
+        android:elegantTextHeight="false"
         android:ellipsize="none"
-        android:gravity="right|fill"
-        android:singleLine="false"
-        android:text="TextView"
+        android:freezesText="false"
+        android:gravity="center_vertical"
+        android:maxWidth="@dimen/big_button_size_height"
+        android:singleLine="true"
+        android:text="TextView1231"
         android:textAlignment="textStart"
         android:textSize="@dimen/activity_normal_font_size" />
 
     <TextView
-        android:id="@+id/text_view_account_authority"
+        android:id="@+id/text_view_record_money"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:ellipsize="none"
-        android:gravity="right|fill"
+        android:gravity="center_vertical"
+        android:maxWidth="@dimen/big_button_size_height"
         android:text="TextView"
-        android:textAlignment="textStart"
+        android:textAlignment="center"
         android:textSize="@dimen/activity_normal_font_size" />
 
     <TextView
-        android:id="@+id/text_view_account_counter"
+        android:id="@+id/text_view_record_datetime"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:ellipsize="none"
-        android:gravity="right|fill"
+        android:gravity="center_vertical"
         android:text="TextView"
-        android:textAlignment="textStart"
+        android:textAlignment="textEnd"
         android:textSize="@dimen/activity_normal_font_size" />
 
 </LinearLayout>

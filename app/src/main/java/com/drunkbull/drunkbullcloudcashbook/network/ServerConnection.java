@@ -42,8 +42,8 @@ public class ServerConnection {
         GSignalManager.getSingleton().addGSignal(this, "responsed");
     }
 
-    //private String serverHost = "10.0.2.2";
-    private String serverHost = "123.56.105.106";
+    private String serverHost = "10.0.2.2";
+    //private String serverHost = "123.56.105.106";
     private int serverPort = 8989;
 
     /// 通过nio方式来接收连接和处理连接

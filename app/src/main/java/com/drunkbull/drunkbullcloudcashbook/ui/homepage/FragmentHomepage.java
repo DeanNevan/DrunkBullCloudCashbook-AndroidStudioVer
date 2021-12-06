@@ -1,11 +1,8 @@
 package com.drunkbull.drunkbullcloudcashbook.ui.homepage;
 
-import static android.app.Activity.RESULT_CANCELED;
-import static android.app.Activity.RESULT_OK;
-
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,37 +10,32 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.drunkbull.drunkbullcloudcashbook.MainActivity;
 import com.drunkbull.drunkbullcloudcashbook.R;
-import com.drunkbull.drunkbullcloudcashbook.activities.CreateGroupActivity;
-import com.drunkbull.drunkbullcloudcashbook.network.RequestWriter;
 import com.drunkbull.drunkbullcloudcashbook.network.ServerConnection;
 import com.drunkbull.drunkbullcloudcashbook.protobuf.CBMessage;
 import com.drunkbull.drunkbullcloudcashbook.singleton.Auth;
 import com.drunkbull.drunkbullcloudcashbook.singleton.GSignalManager;
 import com.drunkbull.drunkbullcloudcashbook.singleton.NoSuchGSignalException;
-import com.drunkbull.drunkbullcloudcashbook.utils.data.DateUtil;
 
 
 public class FragmentHomepage extends Fragment {
+
+    public int pageIDX = 0;
+    private Context context;
+    private boolean current = false;
 
     Button buttonCreateGroup;
     Button buttonLoginGroup;
     Button buttonGroupDashboard;
 
-    public int pageIDX = -1;
-
     public FragmentHomepage(){
         GSignalManager.getSingleton().addGSignal(this, "switch_to_create_group");
         GSignalManager.getSingleton().addGSignal(this, "switch_to_login_group");
+        GSignalManager.getSingleton().addGSignal(this, "switch_to_group_homepage");
         GSignalManager.getSingleton().addGSignal(this, "notify_login_first");
     }
 
@@ -94,6 +86,12 @@ public class FragmentHomepage extends Fragment {
         buttonGroupDashboard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                try {
+                    GSignalManager.getSingleton().emitGSignal(FragmentHomepage.this, "switch_to_group_homepage");
+                } catch (NoSuchGSignalException e) {
+                    e.printStackTrace();
+                }
+
                 Toast.makeText(getContext(), "buttonGroupDashboard", Toast.LENGTH_SHORT).show();
             }
         });
@@ -103,9 +101,10 @@ public class FragmentHomepage extends Fragment {
         return view;
     }
 
-    private void onPageChanged(Integer pos){
+    public void onPageChanged(Integer pos){
         int position = pos;
         if (position == pageIDX){
+            current = true;
             if (!Auth.getSingleton().authenticated){
                 try {
                     GSignalManager.getSingleton().emitGSignal(this, "notify_login_first");
@@ -113,6 +112,9 @@ public class FragmentHomepage extends Fragment {
                     e.printStackTrace();
                 }
             }
+        }
+        else{
+            current = false;
         }
     }
 
