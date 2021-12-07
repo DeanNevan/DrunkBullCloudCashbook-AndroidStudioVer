@@ -1,7 +1,11 @@
 package com.drunkbull.drunkbullcloudcashbook.ui.homepage;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.media.Image;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
@@ -9,10 +13,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
@@ -41,6 +47,8 @@ public class FragmentHomepage extends Fragment {
         GSignalManager.getSingleton().addGSignal(this, "notify_login_first");
     }
 
+    ImageView imageViewTest;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -60,6 +68,9 @@ public class FragmentHomepage extends Fragment {
         buttonCreateGroup = view.findViewById(R.id.button_create_group);
         buttonLoginGroup = view.findViewById(R.id.button_login_group);
         buttonGroupDashboard = view.findViewById(R.id.button_group_dashboard);
+
+        imageViewTest = view.findViewById(R.id.image_view_test);
+
 
         buttonCreateGroup.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,13 +97,21 @@ public class FragmentHomepage extends Fragment {
         });
 
         buttonGroupDashboard.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View v) {
+
+                @SuppressLint("ResourceAsColor") ColorStateList colorStateList = ColorStateList.valueOf(R.color.green);
+
+                imageViewTest.setForegroundTintList(colorStateList);
+
                 try {
                     GSignalManager.getSingleton().emitGSignal(FragmentHomepage.this, "switch_to_group_homepage");
                 } catch (NoSuchGSignalException e) {
                     e.printStackTrace();
                 }
+
+
 
                 Toast.makeText(getContext(), "buttonGroupDashboard", Toast.LENGTH_SHORT).show();
             }
